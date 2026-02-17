@@ -1,0 +1,46 @@
+provider "google" {
+  project     = var.project
+  region      = var.region
+  credentials = var.gcp_credentials_json
+}
+
+module "instance" {
+  source            = "./modules/instance"
+  project           = var.project
+  region            = var.region
+  user              = var.user
+  publickeypath     = var.publickeypath
+  email             = var.email
+  instance_name     = var.instance_name
+  boot_image        = var.boot_image
+  machine_type      = var.machine_type
+  zone_suffix       = var.zone_suffix
+  panel_port         = var.panel_port
+  enable_caddy_tls   = var.enable_caddy_tls
+  proxy_port         = var.proxy_port
+}
+
+# Run backup before instance recreation: terraform apply -target="module.backup"
+module "backup" {
+  source          = "./modules/backup"
+  instance_id     = module.instance.vpn_instance.id
+  instance_ip     = module.instance.instance_ip
+  user            = var.user
+  privatekeypath  = var.privatekeypath
+  backup_path     = var.backup_path
+}
+
+module "provisioner" {
+  depends_on             = [module.instance.vpn_instance, module.backup]
+  source                 = "./modules/provisioner"
+  instance_ip            = module.instance.instance_ip
+  user                   = var.user
+  privatekeypath         = var.privatekeypath
+  backup_path            = var.backup_path
+  v2ray_host             = var.v2ray_host
+  panel_port             = var.panel_port
+  panel_base_path       = var.panel_base_path
+  enable_caddy_tls      = var.enable_caddy_tls
+  panel_host            = var.panel_host
+  cron_restart_schedule = var.cron_restart_schedule
+}

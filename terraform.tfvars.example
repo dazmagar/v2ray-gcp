@@ -1,0 +1,33 @@
+# Required: GCP credentials (path to keys/terraform-new.json)
+gcp_credentials_json = "keys/terraform-new.json"
+project              = "demo-project-a1b2c3d4"
+region               = "europe-west3"
+email                = "tf-service@demo-project-a1b2c3d4.iam.gserviceaccount.com"
+
+# Required: SSH keys
+user                 = "tfadmin"
+publickeypath        = "c:/Users/demo/.ssh/id_rsa.pub"
+privatekeypath       = "c:/Users/demo/.ssh/id_rsa"
+
+# Required: V2Ray panel (used in client links)
+v2ray_host           = "v2ray.demo-example.com"
+
+# Optional: 3x-ui panel security (Panel Settings recommendations)
+panel_port        = 27419
+panel_base_path   = "xui-a8f3b2c4/"   # hides default /panel/
+
+# Optional: Caddy on 443 (panel); proxy on proxy_port (default 8443)
+enable_caddy_tls = true
+proxy_port       = 44344   # VLESS/Reality inbound port in 3x-ui
+
+# Optional: Instance configuration (defaults shown)
+instance_name        = "v2ray-server-eu-demo"
+boot_image           = "ubuntu-2404-lts-amd64"
+machine_type         = "e2-micro"
+zone_suffix          = "b"
+
+# Optional: Cron schedule for container restart (default: daily at 3 AM)
+cron_restart_schedule = "15 4 * * *"
+
+# Optional: Backup directory for 3x-ui panel data
+backup_path          = "./modules/backup/xui_backup"
