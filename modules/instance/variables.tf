@@ -49,18 +49,22 @@ variable "zone_suffix" {
 
 variable "panel_port" {
   type        = number
-  description = "3x-ui panel port (opened in firewall)"
+  description = "3x-ui panel port (deny from internet when enable_caddy_tls)"
   default     = 2053
 }
 
 variable "enable_caddy_tls" {
   type        = bool
-  description = "Open port 80 and panel_https_port when Caddy is used"
+  description = "When true, deny panel_port from internet (use Caddy on 443)"
   default     = true
 }
 
-variable "proxy_port" {
-  type        = number
-  description = "Port for Xray proxy (VLESS/Reality inbound in 3x-ui)"
-  default     = 8443
+variable "firewall_tcp_ports" {
+  type        = list(string)
+  description = "Allowed TCP ports for 0.0.0.0/0 (computed in root module)"
+}
+
+variable "firewall_udp_ports" {
+  type        = list(string)
+  description = "Allowed UDP ports for 0.0.0.0/0 (computed in root module)"
 }

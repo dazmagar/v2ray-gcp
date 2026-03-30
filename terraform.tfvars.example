@@ -12,22 +12,32 @@ privatekeypath       = "c:/Users/demo/.ssh/id_rsa"
 # Required: V2Ray panel (used in client links)
 v2ray_host           = "v2ray.demo-example.com"
 
-# Optional: 3x-ui panel security (Panel Settings recommendations)
+# Required: 3x-ui panel
 panel_port        = 27419
-panel_base_path   = "xui-a8f3b2c4/"   # hides default /panel/
+panel_base_path   = "xui-a8f3b2c4/"   # or "" for default /panel/
+panel_host        = ""                # Caddy: empty => panel.<v2ray_host>
 
-# Optional: Caddy on 443 (panel); proxy on proxy_port (default 8443)
+# Required: Caddy + proxy
 enable_caddy_tls = true
-proxy_port       = 44344   # VLESS/Reality inbound port in 3x-ui
+proxy_port       = 8443
 
-# Optional: Instance configuration (defaults shown)
+# Required: GCP firewall (proxy_port always merged; panel_port merged only if enable_caddy_tls = false)
+firewall_tcp_ports = [
+  22,
+  80,
+  443,
+  37883,
+]
+firewall_udp_ports = [
+  443,
+  31863,
+]
+
+# Required: Instance
 instance_name        = "v2ray-server-eu-demo"
 boot_image           = "ubuntu-2404-lts-amd64"
 machine_type         = "e2-micro"
 zone_suffix          = "b"
 
-# Optional: Cron schedule for container restart (default: daily at 3 AM)
 cron_restart_schedule = "15 4 * * *"
-
-# Optional: Backup directory for 3x-ui panel data
 backup_path          = "./modules/backup/xui_backup"

@@ -1,6 +1,6 @@
 variable "gcp_credentials_json" {
   type        = string
-  description = "Path to GCP service account credentials JSON file"
+  description = "Path to GCP service account JSON key"
 }
 
 variable "project" {
@@ -10,96 +10,95 @@ variable "project" {
 
 variable "region" {
   type        = string
-  description = "GCP region for resources deployment"
+  description = "GCP region"
 }
 
 variable "user" {
   type        = string
-  description = "SSH username for VM instance access"
+  description = "SSH user on the VM"
 }
 
 variable "publickeypath" {
   type        = string
-  description = "Path to public SSH key file (id_rsa.pub)"
+  description = "Path to SSH public key"
 }
 
 variable "privatekeypath" {
   type        = string
-  description = "Path to private SSH key file (id_rsa)"
+  description = "Path to SSH private key"
 }
 
 variable "email" {
   type        = string
-  description = "GCP service account email address"
+  description = "GCP service account email"
 }
 
 variable "v2ray_host" {
   type        = string
-  description = "V2Ray/Xray panel host IP or FQDN (for client links)"
+  description = "Server IP or hostname for client configs"
 }
 
 variable "panel_port" {
   type        = number
-  description = "3x-ui panel listen port (change from default 2053 to reduce scan risk)"
-  default     = 2053
+  description = "3x-ui panel listen port"
 }
 
 variable "panel_base_path" {
   type        = string
-  description = "3x-ui panel base path, e.g. /xui-abc123/ (must start and end with /). Empty = keep default /panel/"
-  default     = ""
+  description = "Panel base path segment; empty = default path"
 }
 
 variable "enable_caddy_tls" {
   type        = bool
-  description = "Install Caddy as reverse proxy with Let's Encrypt TLS for the panel"
-  default     = true
+  description = "Expose panel via Caddy with HTTPS"
 }
 
 variable "proxy_port" {
   type        = number
-  description = "Port for VLESS/Reality proxy (Xray). Panel is on 443 via Caddy; set inbound port in 3x-ui to this value."
-  default     = 8443
+  description = "Xray proxy inbound port"
+}
+
+variable "firewall_tcp_ports" {
+  type        = list(number)
+  description = "GCP firewall: allowed TCP ports (proxy_port always added; panel_port added when enable_caddy_tls is false)"
+}
+
+variable "firewall_udp_ports" {
+  type        = list(number)
+  description = "GCP firewall: allowed UDP ports"
 }
 
 variable "panel_host" {
   type        = string
-  description = "Panel host when using Caddy: subdomain prefix (e.g. 'ui' -> ui.<v2ray_host>) or full FQDN if it contains a dot. Empty = panel.<v2ray_host>. Add DNS A record to same IP."
-  default     = ""
+  description = "Caddy: subdomain or FQDN; empty uses default host"
 }
 
 variable "instance_name" {
   type        = string
-  description = "Name of the compute instance"
-  default     = "v2ray-server"
+  description = "Compute Engine instance name"
 }
 
 variable "boot_image" {
   type        = string
-  description = "Boot image family for the instance"
-  default     = "ubuntu-2404-lts-amd64"
+  description = "Image family"
 }
 
 variable "machine_type" {
   type        = string
-  description = "Machine type for the compute instance"
-  default     = "e2-micro"
+  description = "Machine type"
 }
 
 variable "zone_suffix" {
   type        = string
-  description = "Zone suffix (a, b, c, etc.)"
-  default     = "b"
+  description = "Zone suffix (e.g. b for region-b)"
 }
 
 variable "cron_restart_schedule" {
   type        = string
-  description = "Cron schedule for 3x-ui container restart (default: daily at 3 AM)"
-  default     = "0 3 * * *"
+  description = "Cron line for 3x-ui container restart"
 }
 
 variable "backup_path" {
   type        = string
-  description = "Local path for 3x-ui panel backup (db and config)"
-  default     = "./modules/backup/xui_backup"
+  description = "Local directory for panel backups"
 }

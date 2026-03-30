@@ -10,12 +10,12 @@ resource "google_compute_firewall" "default" {
 
   allow {
     protocol = "tcp"
-    ports    = concat(["22", "443", tostring(var.proxy_port), "37883"], var.enable_caddy_tls ? ["80"] : [tostring(var.panel_port)])
+    ports    = var.firewall_tcp_ports
   }
 
   allow {
     protocol = "udp"
-    ports    = ["443"]
+    ports    = var.firewall_udp_ports
   }
 
   source_ranges = ["0.0.0.0/0"]
@@ -36,7 +36,7 @@ resource "google_compute_firewall" "deny_panel_port" {
 
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["v2ray-server"]
-  priority     = 900
+  priority      = 900
 }
 
 resource "google_compute_address" "static" {
@@ -81,5 +81,7 @@ resource "google_compute_instance" "vpn_instance" {
 
   lifecycle {
     create_before_destroy = false
+    # Family image (data.google_compute_image) moves to a new patch → do not replace VM.
+    ignore_changes = [boot_disk]
   }
 }

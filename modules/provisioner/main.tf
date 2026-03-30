@@ -149,6 +149,11 @@ resource "null_resource" "install_caddy" {
 resource "null_resource" "setup_cron_restart" {
   depends_on = [null_resource.install_docker, null_resource.run_3x_ui]
 
+  triggers = {
+    instance_ip           = var.instance_ip
+    cron_restart_schedule = var.cron_restart_schedule
+  }
+
   connection {
     host        = var.instance_ip
     type        = "ssh"

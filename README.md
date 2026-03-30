@@ -34,7 +34,7 @@ Based on the official **3x-ui** project: https://github.com/MHSanaei/3x-ui
    cp terraform.tfvars.example terraform.tfvars
    ```
 
-2. Edit `terraform.tfvars` (credentials path, project, SSH keys, `v2ray_host`).
+2. Edit `terraform.tfvars`: all variables in `variables.tf` are required (see `terraform.tfvars.example`; no defaults in root module).
 
 3. Initialize and apply:
    ```bash
@@ -51,17 +51,18 @@ Based on the official **3x-ui** project: https://github.com/MHSanaei/3x-ui
 ## Configuration
 
 - **v2ray_host** – IP or FQDN of the server (used in client connection links).
-- Firewall: SSH 22, panel 2053, proxy 443 (adjust in `modules/instance` if needed).
+- **Firewall:** `firewall_tcp_ports` / `firewall_udp_ports` in `terraform.tfvars`; **`proxy_port` is always merged into TCP**, **`panel_port` is merged when `enable_caddy_tls` is false** (direct panel). Duplicates removed (`distinct`).
 
 ## Backup and restore
 
 - **Normal `terraform apply`** (without recreating the instance) does **not** wipe panel configs: data lives on the VM disk in `/home/<user>/x-ui/` and is only lost when the **instance** is recreated (new VM).
-- **Backup (download from server):** before destroying or recreating the instance, run:
-  ```bash
-  terraform apply -target="module.backup"
-  ```
-  This copies `/home/<user>/x-ui/` from the server into `backup_path/current/` and also into `backup_path/<year>/xui.backup.<timestamp>/`.
-- **Restore (push to server on new deploy):** if `backup_path/current/` exists and is not empty when you run `terraform apply` (e.g. after a full redeploy), the provisioner **automatically** restores it to the new instance before starting 3x-ui. So: (1) before recreating, run `terraform apply -target="module.backup"`; (2) recreate (e.g. `terraform destroy` + `terraform apply`, or change that forces new instance); (3) run `terraform apply` — restore runs first, then 3x-ui starts with the restored data.
+- **Backup (download from server):** the backup module runs when **`instance_id` / `instance_ip` change** (e.g. after VM replacement). A routine `terraform apply` with an unchanged VM does **not** re-run the backup scripts.
+  - **Manual backup** without recreating the VM:
+    ```bash
+    terraform apply -replace="module.backup.null_resource.backup_xui"
+    ```
+  This copies `/home/<user>/x-ui/` into `backup_path/current/` and `backup_path/<year>/xui.backup.<timestamp>/`.
+- **Restore (push to server on new deploy):** if `backup_path/current/` exists and is not empty when you run `terraform apply` (e.g. after a full redeploy), the provisioner **automatically** restores it before starting 3x-ui. Flow: (1) take a manual backup if needed (`-replace=...` above); (2) recreate the instance if required; (3) `terraform apply` — restore runs, then 3x-ui.
 
 ## Troubleshooting
 
